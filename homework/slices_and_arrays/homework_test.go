@@ -50,10 +50,6 @@ func (q *CircularQueue) Pop() bool {
 		return false
 	}
 
-	if q.numberOfElements == 1 {
-		q.startIndex = -1
-	}
-
 	q.numberOfElements--
 	q.startIndex = q.incrementIndex(q.startIndex)
 
