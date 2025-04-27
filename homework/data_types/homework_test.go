@@ -1,8 +1,8 @@
 package main
 
 import (
+	"math"
 	"testing"
-	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -10,25 +10,18 @@ import (
 // go test -v homework_test.go
 
 func ToLittleEndian(number uint32) uint32 {
-	shift0 := number
-	shift8 := number >> 8
-	shift16 := number >> 16
-	shift24 := number >> 24
-
-	pointerToFirstByteOfShift0 := (*uint8)(unsafe.Pointer(&shift0))
-	pointerToFirstByteOfShift8 := (*uint8)(unsafe.Pointer(&shift8))
-	pointerToFirstByteOfShift16 := (*uint8)(unsafe.Pointer(&shift16))
-	pointerToFirstByteOfShift24 := (*uint8)(unsafe.Pointer(&shift24))
-
 	var res uint32 = 0
+	for i := 3; i >= 0; i-- {
+		// take the last byte
+		lastByteValue := number % uint32(math.Pow(2, float64(8)))
 
-	res += uint32(*pointerToFirstByteOfShift0)
-	res = res << 8
-	res += uint32(*pointerToFirstByteOfShift8)
-	res = res << 8
-	res += uint32(*pointerToFirstByteOfShift16)
-	res = res << 8
-	res += uint32(*pointerToFirstByteOfShift24)
+		// put it to the proper place in the result
+		res += lastByteValue * uint32(math.Pow(2, float64(8*i)))
+
+		// remove the last byte
+		number -= lastByteValue
+		number /= uint32(math.Pow(2, float64(8)))
+	}
 
 	return res
 }
