@@ -23,7 +23,7 @@ func NewCircularQueue(size int) CircularQueue {
 	return CircularQueue{
 		values:             make([]int, size),
 		indexOfLastElement: size - 1,
-		startIndex:         -1,
+		startIndex:         0,
 		numberOfElements:   0,
 	}
 }
@@ -31,10 +31,6 @@ func NewCircularQueue(size int) CircularQueue {
 func (q *CircularQueue) Push(value int) bool {
 	if q.Full() {
 		return false
-	}
-
-	if q.Empty() {
-		q.startIndex = q.incrementIndex(q.startIndex)
 	}
 
 	firstNotEngagedIndex := q.sumIndex(q.startIndex, q.numberOfElements)
@@ -50,8 +46,9 @@ func (q *CircularQueue) Pop() bool {
 		return false
 	}
 
-	q.numberOfElements--
 	q.startIndex = q.incrementIndex(q.startIndex)
+
+	q.numberOfElements--
 
 	return true
 }
