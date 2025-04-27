@@ -15,7 +15,8 @@ type CircularQueue struct {
 	indexOfLastElement int
 
 	startIndex int
-	endIndex   int
+
+	numberOfElements int
 }
 
 func NewCircularQueue(size int) CircularQueue {
@@ -23,7 +24,7 @@ func NewCircularQueue(size int) CircularQueue {
 		values:             make([]int, size),
 		indexOfLastElement: size - 1,
 		startIndex:         -1,
-		endIndex:           -1,
+		numberOfElements:   0,
 	}
 }
 
@@ -36,8 +37,10 @@ func (q *CircularQueue) Push(value int) bool {
 		q.startIndex = q.incrementIndex(q.startIndex)
 	}
 
-	q.endIndex = q.incrementIndex(q.endIndex)
-	q.values[q.endIndex] = value
+	firstNotEngagedIndex := q.sumIndex(q.startIndex, q.numberOfElements)
+	q.values[firstNotEngagedIndex] = value
+
+	q.numberOfElements++
 
 	return true
 }
@@ -47,12 +50,11 @@ func (q *CircularQueue) Pop() bool {
 		return false
 	}
 
-	if q.startIndex == q.endIndex {
+	if q.numberOfElements == 1 {
 		q.startIndex = -1
-		q.endIndex = -1
-		return true
 	}
 
+	q.numberOfElements--
 	q.startIndex = q.incrementIndex(q.startIndex)
 
 	return true
@@ -71,19 +73,16 @@ func (q *CircularQueue) Back() int {
 		return -1
 	}
 
-	return q.values[q.endIndex]
+	firstNotEngagedIndex := q.sumIndex(q.startIndex, q.numberOfElements)
+	return q.values[q.decrementIndex(firstNotEngagedIndex)]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return q.startIndex == -1 && q.endIndex == -1
+	return q.numberOfElements == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	if q.Empty() {
-		return false
-	}
-
-	return q.incrementIndex(q.endIndex) == q.startIndex
+	return q.numberOfElements == len(q.values)
 }
 
 func (q *CircularQueue) incrementIndex(index int) int {
@@ -91,6 +90,26 @@ func (q *CircularQueue) incrementIndex(index int) int {
 
 	if index > q.indexOfLastElement {
 		return 0
+	}
+
+	return index
+}
+
+func (q *CircularQueue) decrementIndex(index int) int {
+	index--
+
+	if index < 0 {
+		return q.indexOfLastElement
+	}
+
+	return index
+}
+
+func (q *CircularQueue) sumIndex(index int, valueToAdd int) int {
+	index += (valueToAdd % len(q.values))
+
+	if index > q.indexOfLastElement {
+		return index - len(q.values)
 	}
 
 	return index
